@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import ProjectCard from "@/components/project-card"
 import SkillBadge from "@/components/skill-badge"
 import SectionTitle from "@/components/section-title"
+import emailjs from '@emailjs/browser'
 
 interface NavSection {
   id: string;
@@ -19,6 +20,7 @@ export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home")
   const sectionRefs = useRef<HTMLDivElement[]>([])
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   const navSections: NavSection[] = [
     { id: "home", label: "accueil" },
@@ -65,9 +67,37 @@ export default function Portfolio() {
     }
   }
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Utilise les variables d'environnement
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
+
+    emailjs.sendForm(serviceId, templateId, e.target as HTMLFormElement, publicKey)
+      .then((result) => {
+        setNotification({ message: 'Message envoyé avec succès !', type: 'success' });
+        // Reset le formulaire
+        (e.target as HTMLFormElement).reset();
+      })
+      .catch((error) => {
+        setNotification({ message: 'Erreur lors de l\'envoi du message', type: 'error' });
+        console.error('EmailJS error:', error);
+      });
+  };
+
   const projects = [
     {
       id: 1,
+      title: "Swizzer Prod",
+      description: "Site web pour un monteur vidéo professionnel, présentant ses services de montage et ses projets",
+      technologies: ["React", "Nodejs"],
+      image: "assets/Projets/swizzer.jpg",
+      demo: "https://swizzerprod.netlify.app/",
+    },
+    {
+      id: 2,
       title: "L'Ordre Du Nautilus",
       description: "Site pour l'association l'Ordre Du Nautilus",
       technologies: ["React", "Node.js"],
@@ -75,7 +105,7 @@ export default function Portfolio() {
       demo: "https://guillaumelineatte.github.io/lordre-du-nautilus/",
     },
     {
-      id: 2,
+      id: 3,
       title: "Budget-Manager",
       description: "Application web de gestion de budget",
       technologies: ["React", "Node.js"],
@@ -109,6 +139,27 @@ export default function Portfolio() {
 
   return (
     <div className="bg-black text-white min-h-screen">
+      {/* Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg ${
+              notification.type === 'success'
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+            }`}
+            onAnimationComplete={() => {
+              setTimeout(() => setNotification(null), 3000);
+            }}
+          >
+            {notification.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/18">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -276,7 +327,7 @@ export default function Portfolio() {
                 <div className="space-y-4 text-white/70">
                   <p>
                   Je m'appelle Guillaume Linéatte, j'ai 26 ans et j'ai été apprenti développeur chez Picardie Informatique à Amiens durant mon BTS.
-                  Je crée désormais des sites web et des applications web sur mesure pour répondre aux besoins de mes clients.
+                  Je crée désormais des sites et applications web sur mesure pour répondre aux besoins de mes clients.
                   </p>
                 </div>
               </motion.div>
@@ -415,7 +466,7 @@ export default function Portfolio() {
                 transition={{ duration: 0.5 }}
                 className="bg-white/5 border border-white/10 rounded-xl p-6 shadow-xl backdrop-blur-sm"
               >
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">
                       Nom
@@ -423,6 +474,7 @@ export default function Portfolio() {
                     <input
                       type="text"
                       id="name"
+                      name="name"
                       className="w-full px-4 py-2 bg-white/10 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Votre nom"
                       required
@@ -435,6 +487,7 @@ export default function Portfolio() {
                     <input
                       type="email"
                       id="email"
+                      name="email"
                       className="w-full px-4 py-2 bg-white/10 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Votre email"
                       required
@@ -446,6 +499,7 @@ export default function Portfolio() {
                     </label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={5}
                       className="w-full px-4 py-2 bg-white/10 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="Votre message"
@@ -455,21 +509,6 @@ export default function Portfolio() {
                     <Button
                     type="submit"
                     className="w-full shadow-lg shadow-blue-500/20 transition-all hover:translate-y-[-2px]"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.preventDefault()
-                      const nameInput = document.getElementById("name") as HTMLInputElement
-                      const emailInput = document.getElementById("email") as HTMLInputElement
-                      const messageInput = document.getElementById("message") as HTMLTextAreaElement
-
-                      const mailtoLink: { subject: string; body: string } = {
-                      subject: "Portfolio Contact",
-                      body: `Name: ${nameInput.value}\nEmail: ${emailInput.value}\n\n${messageInput.value}`,
-                      }
-
-                      window.location.href = `mailto:lineatteg@gmail.com?subject=${encodeURIComponent(
-                      mailtoLink.subject,
-                      )}&body=${encodeURIComponent(mailtoLink.body)}`
-                    }}
                     >
                     Envoyer
                     </Button>
@@ -550,7 +589,7 @@ export default function Portfolio() {
                 <Linkedin size={20} />
                 <span className="sr-only">LinkedIn</span>
               </a>
-              <a href="mailto:your.email@example.com" className="text-white/50 hover:text-primary transition-colors">
+              <a href="mailto:lineatteg@example.com" className="text-white/50 hover:text-primary transition-colors">
                 <Mail size={20} />
                 <span className="sr-only">Email</span>
               </a>
