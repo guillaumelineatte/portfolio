@@ -134,6 +134,7 @@ export default function Portfolio() {
     "CI/CD",
     "Méthode Agile",
     "Versioning",
+    "Veille technologique",
 
   ]
 
