@@ -132,6 +132,7 @@ export default function Portfolio() {
     "Git",
     "Docker",
     "CI/CD",
+    "API",
     "Méthode Agile",
     "Versioning",
     "Veille technologique",
@@ -327,7 +328,7 @@ export default function Portfolio() {
               >
                 <div className="space-y-4 text-white/70">
                   <p>
-                  Je m'appelle Guillaume Linéatte, j'ai 26 ans et j'ai été apprenti développeur chez Picardie Informatique à Amiens durant mon BTS.
+                  Je m'appelle Guillaume Linéatte, j'ai 27 ans et j'ai été apprenti développeur chez Picardie Informatique à Amiens durant mon BTS.
                   Je crée des sites et applications web sur mesure pour répondre aux besoins de chacun.
                   </p>
                 </div>
