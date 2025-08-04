@@ -71,18 +71,6 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                 </a>
               </Button>
             )}
-            {project.demo && (
-              <Button
-                asChild
-                size="sm"
-                className="shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all"
-              >
-                <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Live Demo
-                </a>
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>
